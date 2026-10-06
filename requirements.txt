@@ -1,0 +1,4 @@
+pandas>=2.2,<3
+pycountry>=24.6
+jsonschema>=4.23,<5
+requests>=2.32,<3

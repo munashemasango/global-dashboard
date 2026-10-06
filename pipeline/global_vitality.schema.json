@@ -1,0 +1,273 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://global-vitality.local/schema/global_vitality.schema.json",
+  "title": "Global Vitality WDI dataset",
+  "description": "Static country-year dataset contract consumed by src/types.ts and the dashboard.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["metadata", "countries"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "schemaVersion",
+        "source",
+        "sourceUrl",
+        "generatedAt",
+        "startYear",
+        "endYear",
+        "normalization",
+        "missingData",
+        "scoring",
+        "indicators",
+        "pillarLabels",
+        "countryCount"
+      ],
+      "properties": {
+        "title": { "type": "string" },
+        "schemaVersion": { "type": "string", "const": "1.0.0" },
+        "source": { "type": "string" },
+        "sourceUrl": { "type": "string", "format": "uri" },
+        "generatedAt": { "type": "string", "format": "date-time" },
+        "startYear": { "type": "integer", "minimum": 1, "maximum": 9999 },
+        "endYear": { "type": "integer", "minimum": 1, "maximum": 9999 },
+        "normalization": { "type": "string" },
+        "missingData": { "type": "string" },
+        "scoring": { "type": "string" },
+        "countryCount": { "type": "integer", "minimum": 0 },
+        "indicators": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "gdpPerCapitaPpp",
+            "unemployment",
+            "lifeExpectancy",
+            "literacyRate",
+            "electricityAccess",
+            "internetUsers",
+            "forestArea",
+            "co2PerCapita"
+          ],
+          "properties": {
+            "gdpPerCapitaPpp": { "$ref": "#/$defs/indicatorMetadata" },
+            "unemployment": { "$ref": "#/$defs/indicatorMetadata" },
+            "lifeExpectancy": { "$ref": "#/$defs/indicatorMetadata" },
+            "literacyRate": { "$ref": "#/$defs/indicatorMetadata" },
+            "electricityAccess": { "$ref": "#/$defs/indicatorMetadata" },
+            "internetUsers": { "$ref": "#/$defs/indicatorMetadata" },
+            "forestArea": { "$ref": "#/$defs/indicatorMetadata" },
+            "co2PerCapita": { "$ref": "#/$defs/indicatorMetadata" }
+          }
+        },
+        "pillarLabels": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "economic",
+            "humanDevelopment",
+            "infrastructure",
+            "environment",
+            "connectivity",
+            "nvs"
+          ],
+          "properties": {
+            "economic": { "type": "string" },
+            "humanDevelopment": { "type": "string" },
+            "infrastructure": { "type": "string" },
+            "environment": { "type": "string" },
+            "connectivity": { "type": "string" },
+            "nvs": { "type": "string" }
+          }
+        }
+      }
+    },
+    "countries": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/country" }
+    }
+  },
+  "$defs": {
+    "nullableScore": {
+      "oneOf": [
+        { "type": "number", "minimum": 0, "maximum": 100 },
+        { "type": "null" }
+      ]
+    },
+    "indicatorMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "name", "pillar", "direction", "unit"],
+      "properties": {
+        "code": { "type": "string" },
+        "name": { "type": "string" },
+        "pillar": { "type": "string" },
+        "direction": { "enum": ["higher", "lower"] },
+        "unit": { "type": "string" }
+      }
+    },
+    "country": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "numericId",
+        "name",
+        "region",
+        "incomeLevel",
+        "capitalCity",
+        "years"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 3, "maxLength": 3 },
+        "numericId": { "type": ["string", "null"] },
+        "name": { "type": "string" },
+        "region": { "type": ["string", "null"] },
+        "incomeLevel": { "type": ["string", "null"] },
+        "capitalCity": { "type": ["string", "null"] },
+        "years": {
+          "type": "object",
+          "propertyNames": { "pattern": "^[0-9]{4}$" },
+          "additionalProperties": { "$ref": "#/$defs/yearRecord" },
+          "minProperties": 1
+        }
+      }
+    },
+    "yearRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["values", "imputed", "status", "sourceYears", "scores", "completeness"],
+      "properties": {
+        "values": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "gdpPerCapitaPpp",
+            "unemployment",
+            "lifeExpectancy",
+            "literacyRate",
+            "electricityAccess",
+            "internetUsers",
+            "forestArea",
+            "co2PerCapita"
+          ],
+          "properties": {
+            "gdpPerCapitaPpp": { "type": ["number", "null"] },
+            "unemployment": { "type": ["number", "null"] },
+            "lifeExpectancy": { "type": ["number", "null"] },
+            "literacyRate": { "type": ["number", "null"] },
+            "electricityAccess": { "type": ["number", "null"] },
+            "internetUsers": { "type": ["number", "null"] },
+            "forestArea": { "type": ["number", "null"] },
+            "co2PerCapita": { "type": ["number", "null"] }
+          }
+        },
+        "imputed": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/indicatorKey" }
+        },
+        "status": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "gdpPerCapitaPpp",
+            "unemployment",
+            "lifeExpectancy",
+            "literacyRate",
+            "electricityAccess",
+            "internetUsers",
+            "forestArea",
+            "co2PerCapita"
+          ],
+          "properties": {
+            "gdpPerCapitaPpp": { "$ref": "#/$defs/status" },
+            "unemployment": { "$ref": "#/$defs/status" },
+            "lifeExpectancy": { "$ref": "#/$defs/status" },
+            "literacyRate": { "$ref": "#/$defs/status" },
+            "electricityAccess": { "$ref": "#/$defs/status" },
+            "internetUsers": { "$ref": "#/$defs/status" },
+            "forestArea": { "$ref": "#/$defs/status" },
+            "co2PerCapita": { "$ref": "#/$defs/status" }
+          }
+        },
+        "sourceYears": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "gdpPerCapitaPpp",
+            "unemployment",
+            "lifeExpectancy",
+            "literacyRate",
+            "electricityAccess",
+            "internetUsers",
+            "forestArea",
+            "co2PerCapita"
+          ],
+          "properties": {
+            "gdpPerCapitaPpp": { "$ref": "#/$defs/sourceYears" },
+            "unemployment": { "$ref": "#/$defs/sourceYears" },
+            "lifeExpectancy": { "$ref": "#/$defs/sourceYears" },
+            "literacyRate": { "$ref": "#/$defs/sourceYears" },
+            "electricityAccess": { "$ref": "#/$defs/sourceYears" },
+            "internetUsers": { "$ref": "#/$defs/sourceYears" },
+            "forestArea": { "$ref": "#/$defs/sourceYears" },
+            "co2PerCapita": { "$ref": "#/$defs/sourceYears" }
+          }
+        },
+        "scores": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "economic",
+            "humanDevelopment",
+            "infrastructure",
+            "environment",
+            "connectivity",
+            "nvs"
+          ],
+          "properties": {
+            "economic": { "$ref": "#/$defs/nullableScore" },
+            "humanDevelopment": { "$ref": "#/$defs/nullableScore" },
+            "infrastructure": { "$ref": "#/$defs/nullableScore" },
+            "environment": { "$ref": "#/$defs/nullableScore" },
+            "connectivity": { "$ref": "#/$defs/nullableScore" },
+            "nvs": { "$ref": "#/$defs/nullableScore" }
+          }
+        },
+        "completeness": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["indicators", "indicatorCoverage", "pillars", "nvs"],
+          "properties": {
+            "indicators": { "type": "integer", "minimum": 0, "maximum": 8 },
+            "indicatorCoverage": { "$ref": "#/$defs/nullableScore" },
+            "pillars": { "type": "integer", "minimum": 0, "maximum": 4 },
+            "nvs": { "$ref": "#/$defs/nullableScore" }
+          }
+        }
+      }
+    },
+    "indicatorKey": {
+      "enum": [
+        "gdpPerCapitaPpp",
+        "unemployment",
+        "lifeExpectancy",
+        "literacyRate",
+        "electricityAccess",
+        "internetUsers",
+        "forestArea",
+        "co2PerCapita"
+      ]
+    },
+    "status": {
+      "enum": ["observed", "interpolated", "forwardFilled", "missing"]
+    },
+    "sourceYears": {
+      "type": "array",
+      "maxItems": 2,
+      "items": { "type": "integer", "minimum": 1, "maximum": 9999 }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+node_modules/
+dist/
+__pycache__/
+.venv/
+public/data/global_vitality_data.json
+pipeline/*backup*.json
+pipeline/candidate_*.json
+*.py[cod]
